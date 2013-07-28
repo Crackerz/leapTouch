@@ -8,6 +8,7 @@
 
 import java.io.IOException;
 import java.lang.Math;
+
 import com.leapmotion.leap.*;
 import com.leapmotion.leap.Gesture.State;
 
