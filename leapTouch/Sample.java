@@ -1,3 +1,4 @@
+package leapTouch;
 /******************************************************************************\
 * Copyright (C) 2012-2013 Leap Motion, Inc. All rights reserved.               *
 * Leap Motion proprietary and confidential. Not for distribution.              *
@@ -7,10 +8,9 @@
 \******************************************************************************/
 
 import java.io.IOException;
-import java.lang.Math;
+import java.util.ArrayList;
 
 import com.leapmotion.leap.*;
-import com.leapmotion.leap.Gesture.State;
 
 class SampleListener extends Listener {
     public void onInit(Controller controller) {
@@ -19,6 +19,7 @@ class SampleListener extends Listener {
 
     public void onConnect(Controller controller) {
         System.out.println("Connected");
+        System.out.println("\nSelect top left point");
     }
 
     public void onDisconnect(Controller controller) {
@@ -29,24 +30,75 @@ class SampleListener extends Listener {
     public void onExit(Controller controller) {
         System.out.println("Exited");
     }
+
+    public void onFrame(Controller controller) {
+        if(!isCalibrated) {
+        	isCalibrated = Calibrate(controller);
+        	return;
+        }
+        System.out.println("Screen Calibrated");
+    }
     
     VectorAverage avg = new VectorAverage(10);
-    public void onFrame(Controller controller) {
-        // Get the most recent frame and report some basic information
+    GetSanitizedInput isTouched = new GetSanitizedInput(2*1000000,2*10);
+    boolean isDetected = false;
+    boolean isCalibrated = false;
+    boolean firstCall = true;
+    ArrayList<Vector> points = new ArrayList<Vector>(3);
+    public boolean Calibrate(Controller controller) {
+    	if(firstCall) {
+    		String verb;
+    		switch(points.size()) {
+    		case 0:
+    			verb = "Please touch top left corner.";
+    			break;
+    		case 1:
+    			verb = "Please touch bottom right corner.";
+    			break;
+    		case 2:
+    			verb = "Please touch top right corner.";
+    			break;
+    		default:
+    			return true;
+    		}
+    		System.out.println(verb);
+    		firstCall = false;
+    	}
+    	
+    	// Get the most recent frame and report some basic information
         Frame frame = controller.frame();
         if(frame.hands().isEmpty()) {
+        	if(isDetected) {
+        		System.out.println("Lost hand");
+        		isDetected=false;
+        	}
         	avg = new VectorAverage(10);
+            isTouched = new GetSanitizedInput(2*1000000,2*10);
+        	return false;
         }
-        for(int i = 0; i < 1; i++) {
-	        Hand hand = frame.hands().get(i);
-	        Vector handPos = hand.palmPosition();
+        
+        for(int i = 0; i < 1 && i < frame.hands().count(); i++) 
+        {
+        	if(!isDetected) {
+        		System.out.println("Found hand");
+        		isDetected=true;
+        	}
+	        Vector handPos = frame.hands().get(i).palmPosition();
 	        avg.add(handPos);
 	        Vector averagePos = avg.getAverage();
-	        System.out.println("Hand id: " + hand.id()
-	                         + ", X: " + Math.floor(averagePos.getX()/10)
-	                         + ", Y: " + Math.floor(averagePos.getY()/10)
-	                         + ", Z: " + Math.floor(averagePos.getZ()/10));
+	        if(isTouched.checkInput(averagePos, frame.timestamp())) 
+	        {
+	        	isTouched = new GetSanitizedInput(2*1000000,2*10);
+	        	points.add(averagePos);
+	        	System.out.println("Point selected at "+averagePos.getX()+", "+averagePos.getY()+", "+averagePos.getZ());
+	        	firstCall = true;
+	        }
         }
+        
+        if(points.size()==3) {
+        	return true;
+        }
+        return false;
     }
 }
 
