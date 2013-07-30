@@ -1,3 +1,4 @@
+package leapTouch;
 import com.leapmotion.leap.Vector;
 
 
@@ -13,9 +14,9 @@ public class VectorAverage {
 	}
 	
 	public void add(Vector v) {
-		vectorArray[index]=v;
+		vectorArray[index++]=v;
 		if(currSize < vectorArray.length-1)	currSize = index;
-		index=(index+1)%vectorArray.length;
+		index%=vectorArray.length;
 	}
 	
 	public Vector getAverage() {
@@ -27,7 +28,6 @@ public class VectorAverage {
 			y+=vectorArray[i].getY();
 			z+=vectorArray[i].getZ();
 		}
-		
 		return new Vector(x/currSize,y/currSize,z/currSize);
 	}
 }
