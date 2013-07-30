@@ -45,18 +45,23 @@ class SampleListener extends Listener {
     boolean isCalibrated = false;
     boolean firstCall = true;
     ArrayList<Vector> points = new ArrayList<Vector>(3);
-    public boolean Calibrate(Controller controller) {
+    
+    public boolean Calibrate(Controller controller) 
+    {
     	if(firstCall) {
     		String verb;
     		switch(points.size()) {
     		case 0:
-    			verb = "Please touch top left corner.";
+    			verb = "Please touch and hold on top left corner.";     //p0
     			break;
     		case 1:
-    			verb = "Please touch bottom right corner.";
+    			verb = "Please touch and hold on top right corner."; //p1
     			break;
     		case 2:
-    			verb = "Please touch top right corner.";
+    			verb = "Please touch and hold on bototm left corner.";    //p2
+    			break;
+    		case 3:
+    			verb = "Please touch and hold on bottom right corner.";  //p3 
     			break;
     		default:
     			return true;
@@ -95,7 +100,7 @@ class SampleListener extends Listener {
 	        }
         }
         
-        if(points.size()==3) {
+        if(points.size()==4) {
         	return true;
         }
         return false;
