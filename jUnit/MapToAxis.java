@@ -83,7 +83,41 @@ public class MapToAxis {
 	}
 	
 	@Test public void zeroZaroundY() {
-
+			float[] point1 = {(float)Math.random()*100, (float)Math.random()*100, (float)Math.random()*100, 1};
+			float[] point2 = {(float)Math.random()*100, (float)Math.random()*100, (float)Math.random()*100, 1};
+			float[] origin = {0,0,0,1};
+			float[][] matrix = new float[4][3];
+			matrix[0][0] = point1[0];
+			matrix[1][0] = point1[1];
+			matrix[2][0] = point1[2];
+			matrix[0][1] = point2[0];
+			matrix[1][1] = point2[1];
+			matrix[2][1] = point2[2];
+			matrix[0][2] = 0; matrix[1][2] = 0; matrix[2][2] = 0;
+			matrix[3][0] = 1; matrix[3][1] = 1; matrix[3][2] = 1;
+			
+			float dist1 = MatrixLib.dist(new MatrixLib.Point(point1[0], point1[1], point1[2]),
+					new MatrixLib.Point(origin[0], origin[1], origin[2])); // distance between point1 and origin
+			float dist2 = MatrixLib.dist(new MatrixLib.Point(point2[0], point2[1], point2[2]),
+					new MatrixLib.Point(origin[0], origin[1], origin[2])); // distance between point2 and origin
+			float dist3 = MatrixLib.dist(new MatrixLib.Point(point1[0], point1[1], point1[2]), 
+					new MatrixLib.Point(point2[0], point2[1], point2[2])); // distance between point1 and point2
+			
+			//insert your magic here
+			
+			float[][] result = matrix;
+			float newdist1 = MatrixLib.dist(new MatrixLib.Point(result[0][0], result[0][1], result[0][2]), 
+					new MatrixLib.Point(result[2][0], result[2][1], result[2][2]));
+			float newdist2 = MatrixLib.dist(new MatrixLib.Point(result[1][0], result[1][1], result[1][2]), 
+					new MatrixLib.Point(result[2][0], result[2][1], result[2][2]));
+			float newdist3 = MatrixLib.dist(new MatrixLib.Point(result[0][0], result[0][1], result[0][2]), 
+					new MatrixLib.Point(result[1][0], result[1][1], result[1][2]));
+			float delta = (float)0.00001;
+			
+			assertEquals(dist1, newdist1, delta);
+			assertEquals(dist2, newdist2, delta);
+			assertEquals(dist3, newdist3, delta);
+			
 	}
 
 }
