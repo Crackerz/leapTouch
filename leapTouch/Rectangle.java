@@ -1,20 +1,31 @@
 package leapTouch;
+import leapTouch.MatrixLib.Point;
+
 import com.leapmotion.leap.Vector;
 
 
 public class Rectangle {
-	/*  p0 --------- p1
-	 *  |            |
-	 *  |            |
-	 *  p2 --------- p3
+	/*	Before Constructor
+	 *  p0 = upperLeft
+	 *	p1 = lowerRight
+	 *	p3 = upperRight
+	 *	p4 = in front of tv
+	 *
+	 *	After Constructor
+	 *	p0 = upperLeft
+	 *	p1 = upperRight
+	 *	p2 = lowerLeft
+	 *	p3 = lowerRight
+	 *	nontouch = point in front of TV
 	 */
 	Vector[] p = new Vector[4];
+	Vector nontouch;
 	float[][] translationMatrix;
-	public Rectangle(Vector upperLeft, Vector upperRight, Vector lowerLeft, Vector lowerRight) {
-		p[1] = upperLeft;
+	public Rectangle(Vector upperLeft, Vector lowerRight, Vector upperRight, Vector inFront) {
+		p[0] = upperLeft;
+		p[1] = lowerRight;
 		p[2] = upperRight;
-		p[3] = lowerLeft;
-		p[4] = lowerRight;
+		p[3] = inFront;
 	}
 	
 	public float[][] getMarix() {
@@ -41,26 +52,32 @@ public class Rectangle {
 		p[3].setZ(matrix[3][2]);
 	}
 	
-	public float[][] mapToOrigin() {
-		float[] tVector = {-p[2].getX(),-p[2].getY(),-p[2].getZ()};
-		float[][] translationMatrix = {tVector,tVector,tVector,tVector};
-		this.setToMatrix(MatrixLib.add(this.getMarix(),translationMatrix));
-		return translationMatrix;
-	}
-
-	public float[][] snapToY() {
-		float[][] translationMatrix = MatrixLib.getYTranslationMatrix(p[0].getX(), p[0].getY());
-		this.setToMatrix(MatrixLib.multiply(translationMatrix,this.getMarix()));
-		return translationMatrix;
-	}
-	
-	public float[][] snapToX() {
-		return null;
-	}
-	
 	public float[][] flatten() {
-		float[][] result = mapToOrigin();
-		result = MatrixLib.multiply(snapToY(), result);
-		return result;
+		float[][] points = this.getMarix();
+		float[][] toOrigin = MatrixLib.translateToOrigin(new MatrixLib.Point(points[0][0],points[1][0],points[2][0]));		
+		points = MatrixLib.multiply(toOrigin, points);
+		MatrixLib.Point upperRight = MatrixLib.getTopRightCorner(
+				new MatrixLib.Point(points[0][0],points[1][0],points[2][0]),
+				new MatrixLib.Point(points[0][1],points[1][1],points[2][1]));
+		float[][] flattenDiag = MatrixLib.zeroZaroundY(upperRight);
+		points = MatrixLib.multiply(flattenDiag, points);
+		float[][] flattenUpperRight = MatrixLib.zeroZaroundPoint(
+				new MatrixLib.Point(points[0][2],points[1][2],points[2][2]),
+				new MatrixLib.Point(points[0][1],points[1][1],points[2][1]));
+		points = MatrixLib.multiply(flattenUpperRight, points);
+		float[][] newPoints = {
+				{points[0][0],points[0][1],points[0][0],points[0][1]},
+				{points[1][0],points[1][0],points[1][1],points[1][1]},
+				{points[2][0],0,0,points[2][1]}
+		};
+		float[][] newOrigin = MatrixLib.translateToOrigin(
+				new MatrixLib.Point(newPoints[0][2],newPoints[1][2],newPoints[2][2]));
+		newPoints = MatrixLib.multiply(newPoints, newPoints);
+		nontouch = new Vector(points[0][3],points[1][3],points[2][3]);
+		float[][] result = MatrixLib.multiply(newOrigin, flattenUpperRight);
+		result = MatrixLib.multiply(flattenDiag, result);
+		result = MatrixLib.multiply(toOrigin, result);
+		this.setToMatrix(newPoints);
+		return points;
 	}
 }

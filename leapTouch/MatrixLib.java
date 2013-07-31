@@ -69,7 +69,56 @@ public class MatrixLib {
 		float theta = getAngle(p.x,p.z);
 		float cos = (float) Math.cos(theta);
 		float sin = (float) Math.cos(theta);
-		return null;
+		
+		float[][] result = {
+				{cos,0,sin,0},
+				{0,1,0,0},
+				{-sin,0,cos,0},
+				{0,0,0,1}
+		};
+		
+		return result;
+	}
+	
+	/**
+	 * 
+	 */
+	public static float[][] zeroZaroundPoint(Point p, Point point) {
+		float theta = getAngle(point.y,point.x);
+		float cos = (float) Math.cos(theta);
+		float sin = (float) Math.sin(theta);
+		//Rotate about z
+		float[][] matrix = {
+				{cos,-sin,0,0},
+				{sin,cos,0,0},
+				{0,0,1,0},
+				{0,0,0,1}
+		};
+		
+		float thetap = getAngle(p.z,p.y);
+		float cosp = (float) Math.cos(thetap);
+		float sinp = (float) Math.sin(thetap);
+		
+		float[][] matrixp = {
+				{1,0,0,0},
+				{0,cosp,-sinp,0},
+				{0,sinp,cosp,0},
+				{0,0,0,1}
+		};
+		
+		float[][] reverseMatrix = {
+				{cos,sin,0,0},
+				{-sin,cos,0,0},
+				{0,0,1,0},
+				{0,0,0,1}
+		};
+		
+		
+		float[][] result = MatrixLib.multiply(reverseMatrix, matrixp);
+		result = MatrixLib.multiply(matrix, result);
+		
+		
+		return result;
 	}
 	
 	public static float[][] getXTranslationMatrix(float y,float z) {
