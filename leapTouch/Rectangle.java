@@ -47,7 +47,7 @@ public class Rectangle {
 		this.setToMatrix(MatrixLib.add(this.getMarix(),translationMatrix));
 		return translationMatrix;
 	}
-	
+
 	public float[][] snapToY() {
 		float[][] translationMatrix = MatrixLib.getYTranslationMatrix(p[0].getX(), p[0].getY());
 		this.setToMatrix(MatrixLib.multiply(translationMatrix,this.getMarix()));
