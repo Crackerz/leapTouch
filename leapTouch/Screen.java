@@ -18,14 +18,14 @@ public class Screen implements surfaceListener
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		double maxWidth = screenSize.getWidth();
 		double maxHeight = screenSize.getHeight();
-		System.out.println(maxWidth +", "+maxHeight);
-		//rob.mouseMove((int)(maxWidth*percentWidth), (int)(maxHeight*percentHeight));
+		//System.out.println(maxWidth +", "+maxHeight);
+		rob.mouseMove((int)(maxWidth*percentWidth), (int)(maxHeight*percentHeight));
 	}
 	
 	public static void main(String[] args) throws AWTException
 	{
 		Screen s = new Screen();
-		s.passRatio((float) .5, (float) .5);             //it works
+		s.passRatio((float) .5, (float) .5);     //moves mouse to middle of screen
 	}
 
 }
